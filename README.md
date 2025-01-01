@@ -12,11 +12,14 @@ The proposed GD-CAF can be found in the model-folder under [GD-CAF](models/GD-CA
 This project uses [poetry](https://python-poetry.org/) as dependency management. An environment can be created as follows:
 
 ```shell
-conda create --name gd-caf python=3.9
-conda activate gd-caf
-poetry install
+conda create -n gdcaf
+conda activate gdcaf
+conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia -y
+conda install -c conda-forge pytorch-lightning xarray scipy tensorboard tqdm -y
 ```
+
 The main packages, which we are using are:
+
 ```shell
 pytorch
 pytorch_lightning
