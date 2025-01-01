@@ -15,7 +15,7 @@ This project uses [poetry](https://python-poetry.org/) as dependency management.
 conda create -n gdcaf
 conda activate gdcaf
 conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia -y
-conda install -c conda-forge pytorch-lightning xarray scipy tensorboard tqdm -y
+conda install -c conda-forge pytorch-lightning xarray scipy tensorboard tqdm cdsapi -y
 ```
 
 The main packages, which we are using are:
@@ -30,6 +30,10 @@ tqdm
 ```
 
 To correctly install PyTorch for gpu, please go to [PyTorch - Get Started](https://pytorch.org-get-started-locally/) for more information.
+
+## Downloading dataset
+
+Follow [this](https://cds.climate.copernicus.eu/how-to-api) to setup CDSAPI.
 
 ### Training
 
