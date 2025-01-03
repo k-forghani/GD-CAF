@@ -16,6 +16,7 @@ conda create -n gdcaf
 conda activate gdcaf
 conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia -y
 conda install -c conda-forge pytorch-lightning xarray scipy tensorboard tqdm cdsapi -y
+pip3 install netCDF4
 ```
 
 The main packages, which we are using are:
@@ -34,6 +35,19 @@ To correctly install PyTorch for gpu, please go to [PyTorch - Get Started](https
 ## Downloading dataset
 
 Follow [this](https://cds.climate.copernicus.eu/how-to-api) to setup CDSAPI.
+
+Check downloaded file formats:
+
+```shell
+sudo apt install netcdf-bin
+ncdump -h file_name.nc
+```
+
+Or alternatively you can check the file format using the following command:
+
+```shell
+file file_name.nc
+```
 
 ### Training
 

@@ -7,7 +7,7 @@ import os
 import xarray as xr
 import numpy as np
 from torch.utils.data import Dataset
-
+from pathlib import Path
 
 class DatasetGridOverEurope(Dataset):
     def __init__(self, dataset_path, time_steps, future_look, delimiter='/', fast_dev_run=False, cell_path='', cell_cutoff=100):
@@ -36,22 +36,33 @@ class DatasetGridOverEurope(Dataset):
             Read .nc datafiles to count the total number of rows
         :return:
         """
-        filenames = next(os.walk(self.dataset_path), (None, None, []))[2]  # [] if no file
-        filenames = [filename for filename in filenames if filename.endswith('.nc')]
+        # filenames = next(os.walk(self.dataset_path), (None, None, []))[2]  # [] if no file
+        # filenames = [filename for filename in filenames if filename.endswith('.nc')]
+        folders = [folder for folder in Path(self.dataset_path).glob("*") if folder.is_dir()]
+
         n = 0
 
-        if filenames:
-            nc = xr.open_dataset(self.dataset_path + self.delimiter + filenames[0])
+        if folders:
+            f1 = folders[0] / "data_stream-oper_stepType-accum.nc"
+            f2 = folders[0] / "data_stream-oper_stepType-instant.nc"
+            nc1 = xr.open_dataset(f1, engine="netcdf4")
+            nc2 = xr.open_dataset(f2, engine="netcdf4")
+            nc = xr.merge([nc1, nc2], join="exact")
             self.pics_height = nc.variables['tp'][:].shape[1]
             self.pics_width = nc.variables['tp'][:].shape[2]
 
         # Count number of pictures
-        for file in filenames:
-            nc = xr.open_dataset(self.dataset_path + self.delimiter + file)
+        for folder in folders:
+            f1 = folder / "data_stream-oper_stepType-accum.nc"
+            f2 = folder / "data_stream-oper_stepType-instant.nc"
+            nc1 = xr.open_dataset(f1, engine="netcdf4")
+            nc2 = xr.open_dataset(f2, engine="netcdf4")
+            nc = xr.merge([nc1, nc2], join="exact")
+
             n += nc.variables['tp'][:].shape[0]
 
             # Fast stop for
-            month = file.split('_')[2]
+            month = folder.name.split('_')[2]
             if month == '01' and self.fast_dev_run:
                 break
 
@@ -99,6 +110,12 @@ class DatasetGridOverEurope(Dataset):
             # Get random tile position
             square = self.tile_positions[i]
             # Location indexing
+            print(
+                "#########3",
+                grid_data[from_counter: (from_counter + raw_data.shape[0]), i, :, :].shape,
+                raw_data[:, square['y']:(square['y'] + square['edge_y']), square['x']:(square['x'] + square['edge_x'])].shape,
+                grid_data.shape, raw_data.shape
+            )
             grid_data[from_counter: (from_counter + raw_data.shape[0]), i, :, :] = \
                 raw_data[:, square['y']:(square['y'] + square['edge_y']), square['x']:(square['x'] + square['edge_x'])]
 
@@ -109,8 +126,9 @@ class DatasetGridOverEurope(Dataset):
             Load all .nc file, get disjoint regions and convert it to a numpy array
         """
         # Read files
-        filenames = next(os.walk(self.dataset_path), (None, None, []))[2]  # [] if no file
-        filenames = [filename for filename in filenames if filename.endswith('.nc')]
+        # filenames = next(os.walk(self.dataset_path), (None, None, []))[2]  # [] if no file
+        # filenames = [filename for filename in filenames if filename.endswith('.nc')]
+        folders = [folder for folder in Path(self.dataset_path).glob("*") if folder.is_dir()]
         # Keep track
         from_counter = 0  # Starting index of the current batch
         grid_y, grid_x = self.cell_shapes  # Grid cell height and width
@@ -120,14 +138,19 @@ class DatasetGridOverEurope(Dataset):
 
         grid_data = np.zeros((self.total_length, self.graph_size, grid_y, grid_x), dtype='float32')
         print(f'grid data: {grid_data.shape}')
-        for file in filenames:
+        for folder in folders:
             # Extract parameters from file names
-            month = file.split('_')[2]
+            month = folder.name.split('_')[2]
 
-            nc = xr.open_dataset(self.dataset_path + self.delimiter + file)
+            f1 = folder / "data_stream-oper_stepType-accum.nc"
+            f2 = folder / "data_stream-oper_stepType-instant.nc"
+            nc1 = xr.open_dataset(f1, engine="netcdf4")
+            nc2 = xr.open_dataset(f2, engine="netcdf4")
+            nc = xr.merge([nc1, nc2], join="exact")
+
             number_of_images = nc.variables['tp'][:].shape[0]
 
-            print(f'Loading: {file}')
+            print(f'Loading: {folder.name}')
 
             if self.vocal:
                 print('TP parameter: {}'.format(nc.variables['tp'][:].shape))

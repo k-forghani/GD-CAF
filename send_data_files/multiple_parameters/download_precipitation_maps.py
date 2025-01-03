@@ -8,37 +8,38 @@
 
 import cdsapi
 import os
+import pathlib
 
 # Europe and the extended regions border
-DEFAULT_X_0, DEFAULT_X_1 = -31, 100  # W E
-DEFAULT_Y_0, DEFAULT_Y_1 = 15, 82  # S N
+DEFAULT_X_0, DEFAULT_X_1 = 48, 54 # -31, 100  # W E
+DEFAULT_Y_0, DEFAULT_Y_1 = 31, 36 # 15, 82  # S N
 
-year_from = 2016
-year_to = 2022
+year_from = 2019 # 2016
+year_to = 2023 # 2022
 
-each_month = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 folder_name = 'db-whole-multi-param'
+pathlib.Path(folder_name).mkdir(parents=True, exist_ok=True)
 
-
-def download_month(year, month, multi_parameters=True):
+def download_month(year, multi_parameters=True):
     """
         Call ERA5 API to get one month of data from the whole map
     """
     c = cdsapi.Client()
 
-    name = f'{folder_name}\\whole-europe_{year}_{month}_{DEFAULT_Y_1}_{DEFAULT_X_0}_{DEFAULT_Y_0}_{DEFAULT_X_1}.nc'
+    name = f'{folder_name}/region_{year}_{DEFAULT_Y_1}_{DEFAULT_X_0}_{DEFAULT_Y_0}_{DEFAULT_X_1}.nc'
 
     variable = ['10m_u_component_of_wind', '10m_v_component_of_wind', '2m_dewpoint_temperature', '2m_temperature',
                 'surface_pressure', 'total_precipitation'] if multi_parameters else ['total_precipitation']
 
     if needToDownload(name):
+        # Dataset: https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels?tab=overview
         c.retrieve(
             'reanalysis-era5-single-levels',
             {
                 'product_type': 'reanalysis',
                 'variable': variable,
                 'year': year,
-                'month': month,
+                'month': ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
                 'day': ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
                         '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
                         '31'],
@@ -47,6 +48,7 @@ def download_month(year, month, multi_parameters=True):
                          '20:00', '21:00', '22:00', '23:00'],
                 'area': [DEFAULT_Y_1, DEFAULT_X_0, DEFAULT_Y_0, DEFAULT_X_1],  # n w s e
                 'format': 'netcdf',
+                "download_format": "unarchived",
             },
             name)
 
@@ -59,7 +61,7 @@ def needToDownload(looking_for):
     :return: true if file is not in the folder, thus we need to download it
     """
     filenames = next(os.walk(folder_name), (None, None, []))[2]  # [] if no file
-    looking_for = looking_for.split('\\')[-1]
+    looking_for = looking_for.split('/')[-1]
     print(filenames)
     print('looking for: ' + looking_for)
 
@@ -70,10 +72,8 @@ def needToDownload(looking_for):
     return True
 
 
-# Download every selected year, and month
+# Download every selected year
 for y in range(year_from, year_to + 1):
     print('Downloading year: {}'.format(y))
 
-    for m in each_month:
-        print('\tMonth: {}'.format(m))
-        download_month(y, m)
+    download_month(y)

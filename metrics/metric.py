@@ -24,7 +24,8 @@ def compute_loss(model, test_dl, loss='mse', denormalize=True, only_first=False)
         total_tn = 0
         total_fn = 0
         loss_model = 0.0
-        loss_per_region = [0.0] * 16
+        # loss_per_region = [0.0] * 16
+        loss_per_region = [0.0] * 1
         for x, y_true in tqdm(test_dl, position=0, leave=True):
             y_pred = model(x.to(dev))
             y_pred = y_pred.to(dev)
@@ -49,7 +50,10 @@ def compute_loss(model, test_dl, loss='mse', denormalize=True, only_first=False)
                     tmp_pred = y_pred[i, :, :]
                     tmp_true = y_true[i, :, :]
                 # Loss
-                loss_per_region[i] += loss_func(tmp_pred, tmp_true, reduction="sum") / tmp_true.size(0)
+                try:
+                    loss_per_region[i] += loss_func(tmp_pred, tmp_true, reduction="sum") / tmp_true.size(0)
+                except:
+                    pass
 
             # loss
             loss_model += (loss_func(y_pred, y_true, reduction='sum') / y_true.size(0)).item()
