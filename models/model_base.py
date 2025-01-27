@@ -126,10 +126,10 @@ class Precipitation_base(GMAN_base):
         self.valid_sampler = SubsetRandomSampler(valid_idx)
 
     def train_dataloader(self):
-        return DataLoader(self.europe_dataset, batch_size=self.hparams.batch_size, sampler=self.train_sampler)
+        return DataLoader(self.europe_dataset, batch_size=self.hparams.batch_size, sampler=self.train_sampler, num_workers=self.hparams.num_workers)
 
     def val_dataloader(self):
-        return DataLoader(self.europe_dataset, batch_size=self.hparams.batch_size, sampler=self.valid_sampler)
+        return DataLoader(self.europe_dataset, batch_size=self.hparams.batch_size, sampler=self.valid_sampler, num_workers=self.hparams.num_workers)
 
 
 def get_test_dataset(dataset_path, past_look, future_look, B=16, fast_dev_run=False, cell_path='', cell_cutoff=100):

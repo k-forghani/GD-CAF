@@ -59,7 +59,7 @@ if __name__ == "__main__":
     parser.add_argument('--dataset_folder', default='data/train', type=str)
     parser.add_argument('--default_save_path', default='db/trained_models', type=str)
     parser.add_argument('--cell_path', default='utils/cell_positions.csv', type=str)
-    parser.add_argument('--batch_size', type=int, default=6)
+    parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--epochs', type=int, default=150)
     args = parser.parse_args(args=[])
     # General
@@ -84,5 +84,6 @@ if __name__ == "__main__":
     args.n_channels = args.num_input_images * args.cell_cutoff
     # Continue from checkpoint
     # args.resume_from_checkpoint = ""
+    args.num_workers = 7
 
     train_regression(args)

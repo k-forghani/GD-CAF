@@ -59,6 +59,10 @@ class DatasetGridOverEurope(Dataset):
             nc2 = xr.open_dataset(f2, engine="netcdf4")
             nc = xr.merge([nc1, nc2], join="exact")
 
+            print("#####################3333#########################")
+            print(self.pics_width, self.pics_height)
+            print("#####################3333#########################")
+
             n += nc.variables['tp'][:].shape[0]
 
             # Fast stop for
