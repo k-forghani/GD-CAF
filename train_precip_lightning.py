@@ -59,8 +59,8 @@ if __name__ == "__main__":
     parser.add_argument('--dataset_folder', default='data/train', type=str)
     parser.add_argument('--default_save_path', default='db/trained_models', type=str)
     parser.add_argument('--cell_path', default='utils/cell_positions.csv', type=str)
-    parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument('--epochs', type=int, default=150)
+    parser.add_argument('--batch_size', type=int, default=16)
+    parser.add_argument('--epochs', type=int, default=50)
     args = parser.parse_args(args=[])
     # General
     args.fast_dev_run = False
